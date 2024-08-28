@@ -87,16 +87,16 @@ from pymor.operators.numpy import NumpyMatrixBasedOperator
 from pymor.vectorarrays.numpy import NumpyVectorSpace
 
 class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
-    def __init__(self, bempp_op, source_id=None, range_id=None, solver_options=None, name=None):
+    def __init__(self, bempp_op, dim, source_id=None, range_id=None, solver_options=None, name=None):
         self.__auto_init(locals())
-        self.source = NumpyVectorSpace(bempp_op.domain.global_dof_count, source_id)
-        self.range = NumpyVectorSpace(bempp_op.domain.global_dof_count, range_id)
+        self.source = NumpyVectorSpace(dim, source_id)
+        self.range = NumpyVectorSpace(dim, range_id)
 
     def _assemble(self, mu=None):
         self.bempp_op(mu).weak_form().A
 
 
-A = NumpyBEMPPOperator(BEMPP_A)
+A = NumpyBEMPPOperator(BEMPP_A, 454)
 
 
 from pymor.models.basic import StationaryModel
