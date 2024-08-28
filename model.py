@@ -92,6 +92,7 @@ class NumpyBEMPPBoundaryOperator(NumpyMatrixBasedOperator):
         double_layer = helmholtz.double_layer(self.space, self.space, self.space, k, device_interface='opencl')
         return double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A
 
+
 class NumpyBEMPPrhsOperator(NumpyMatrixBasedOperator):
     def __init__(self, space, source_id=None, range_id=None, solver_options=None, name=None):
         self.__auto_init(locals())
@@ -112,9 +113,8 @@ class NumpyBEMPPrhsOperator(NumpyMatrixBasedOperator):
         return -u_inc.projections()
 
 
-
 A = NumpyBEMPPBoundaryOperator(space)
 f = NumpyBEMPPrhsOperator(space)
 
-# from pymor.models.basic import StationaryModel
-# model = StationaryModel(A, f)
+from pymor.models.basic import StationaryModel
+fom = StationaryModel(A, f)
