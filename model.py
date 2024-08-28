@@ -66,7 +66,7 @@ def BEMPP_A(f):
     double_layer = helmholtz.double_layer(space, space, space, k, device_interface='opencl')
     single_layer = helmholtz.single_layer(space, space, space, k, device_interface='opencl')
     A = double_layer - 0.5 * identity + 1j * k * beta * single_layer
-    return A.weak_form().A
+    return A
 
 
 def BEMPP_f(f):
@@ -79,3 +79,23 @@ def BEMPP_f(f):
         result[0] = 1j * rho_0 * omega * Q * np.exp(1j * k * r) / (4 * np.pi * r)
 
     return bempp.api.GridFunction(space, fun=u_inc_callable).evaluate_on_vertices()
+
+
+
+# wrap BEMPP operators
+from pymor.operators.numpy import NumpyMatrixBasedOperator
+class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
+    def __init__(self, bempp_op, source_id=None, range_id=None, solver_options=None, name=None):
+        self.__auto_init(locals())
+        self.source = NumpyVectorSpace(bempp_op.domain.global_dof_count, source_id)
+        self.range = NumpyVectorSpace(bempp_op.domain.global_dof_count, range_id)
+
+    def _assemble(self, mu=None):
+        self.bempp_op(mu).weak_form().A
+
+
+A = NumpyBEMPPOperator(BEMPP_A)
+
+
+from pymor.models.basic import StationaryModel
+model = StationaryModel(A, f)
