@@ -78,7 +78,7 @@ from pymor.vectorarrays.numpy import NumpyVectorSpace
 class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
     def __init__(self, space, source_id=None, range_id=None, solver_options=None, name=None):
         self.__auto_init(locals())
-        dim = space.global_dofs_count
+        dim = space.global_dof_count
         self.source = NumpyVectorSpace(dim, source_id)
         self.range = NumpyVectorSpace(dim, range_id)
         self.parameters_own = {'w': 1}
@@ -87,9 +87,9 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         f = mu['w']
         k = wavenumber(f)
         omega = ang_freq(f)
-        identity = sparse.identity(space, space, space)
-        single_layer = helmholtz.single_layer(space, space, space, k, device_interface='opencl')
-        double_layer = helmholtz.double_layer(space, space, space, k, device_interface='opencl')
+        identity = sparse.identity(self.space, self.space, self.space)
+        single_layer = helmholtz.single_layer(self.space, self.space, self.space, k, device_interface='opencl')
+        double_layer = helmholtz.double_layer(self.space, self.space, self.space, k, device_interface='opencl')
         return NumpyMatrixOperator(double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A)
 
 
