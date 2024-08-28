@@ -83,7 +83,7 @@ def BEMPP_f(f):
 
 
 # wrap BEMPP operators
-from pymor.operators.numpy import NumpyMatrixBasedOperator
+from pymor.operators.numpy import NumpyMatrixBasedOperator, NumpyMatrixOperator
 from pymor.vectorarrays.numpy import NumpyVectorSpace
 
 class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
@@ -94,7 +94,7 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         self.parameters_own = {'w': 1}
 
     def _assemble(self, mu=None):
-        self.bempp_op(mu['w']).weak_form().A
+        NumpyMatrixOperator(self.bempp_op(mu['w']).weak_form().A)
 
 
 A = NumpyBEMPPOperator(BEMPP_A, 454)
