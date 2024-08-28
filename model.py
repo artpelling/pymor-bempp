@@ -90,7 +90,7 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         identity = sparse.identity(self.space, self.space, self.space)
         single_layer = helmholtz.single_layer(self.space, self.space, self.space, k, device_interface='opencl')
         double_layer = helmholtz.double_layer(self.space, self.space, self.space, k, device_interface='opencl')
-        return NumpyMatrixOperator(double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A)
+        return double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A
 
 
 A = NumpyBEMPPOperator(space)
