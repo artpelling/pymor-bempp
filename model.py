@@ -22,6 +22,7 @@ def ang_freq (f):
 def wavenumber (f, c=343):
     return ang_freq(f) / c
 
+
 def inc_pr_field (src, rec, f, Q, rho_0=1.21):
     omega_inc = ang_freq(f)
     k_inc = wavenumber(f)
@@ -53,7 +54,7 @@ r_z = 1.20
 rec = np.array([r_x, r_y, r_z])
 
 # Import Mesh
-grid = bempp.api.import_grid('/home/pelling/projects/pymor-bempp/cuboid.msh')
+grid = bempp.api.import_grid('cuboid.msh')
 space =  bempp.api.function_space(grid, "P", 1)
 identity = sparse.identity(space, space, space)
 
