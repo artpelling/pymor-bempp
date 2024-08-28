@@ -56,17 +56,6 @@ rec = np.array([r_x, r_y, r_z])
 # Import Mesh
 grid = bempp.api.import_grid('cuboid.msh')
 space =  bempp.api.function_space(grid, "P", 1)
-identity = sparse.identity(space, space, space)
-
-
-def BEMPP_A(f):
-    k = wavenumber(f)
-    omega = ang_freq(f)
-    #Boundary operators
-    double_layer = helmholtz.double_layer(space, space, space, k, device_interface='opencl')
-    single_layer = helmholtz.single_layer(space, space, space, k, device_interface='opencl')
-    A = double_layer - 0.5 * identity + 1j * k * beta * single_layer
-    return A
 
 
 def BEMPP_f(f):
@@ -87,17 +76,25 @@ from pymor.operators.numpy import NumpyMatrixBasedOperator, NumpyMatrixOperator
 from pymor.vectorarrays.numpy import NumpyVectorSpace
 
 class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
-    def __init__(self, bempp_op, dim, source_id=None, range_id=None, solver_options=None, name=None):
+    def __init__(self, space, source_id=None, range_id=None, solver_options=None, name=None):
         self.__auto_init(locals())
+        dim = space.global_dofs_count
         self.source = NumpyVectorSpace(dim, source_id)
         self.range = NumpyVectorSpace(dim, range_id)
         self.parameters_own = {'w': 1}
 
     def _assemble(self, mu=None):
-        NumpyMatrixOperator(self.bempp_op(mu['w']).weak_form().A)
+        f = mu['w']
+        k = wavenumber(f)
+        omega = ang_freq(f)
+        identity = sparse.identity(space, space, space)
+        single_layer = helmholtz.single_layer(space, space, space, k, device_interface='opencl')
+        double_layer = helmholtz.double_layer(space, space, space, k, device_interface='opencl')
+        return NumpyMatrixOperator(double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A)
 
 
-A = NumpyBEMPPOperator(BEMPP_A, 454)
+A = NumpyBEMPPOperator(space)
+print(A.assemble(A.parameters.parse(20)))
 
 from pymor.models.basic import StationaryModel
 model = StationaryModel(A, f)
