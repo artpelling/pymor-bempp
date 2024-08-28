@@ -12,7 +12,7 @@ import time
 
 # Room geometry is imported from mesh
 import bempp.core
-#bempp.core.opencl_kernels.set_default_cpu_device(0, 0)
+bempp.core.opencl_kernels.set_default_cpu_device(1, 0)
 
 
 def ang_freq (f):
@@ -84,6 +84,8 @@ def BEMPP_f(f):
 
 # wrap BEMPP operators
 from pymor.operators.numpy import NumpyMatrixBasedOperator
+from pymor.vectorarrays.numpy import NumpyVectorSpace
+
 class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
     def __init__(self, bempp_op, source_id=None, range_id=None, solver_options=None, name=None):
         self.__auto_init(locals())
