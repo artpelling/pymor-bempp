@@ -55,7 +55,7 @@ rec = np.array([r_x, r_y, r_z])
 
 # Import Mesh
 grid = bempp.api.import_grid('cuboid.msh')
-space =  bempp.api.function_space(grid, "P", 1)
+function_space =  bempp.api.function_space(grid, "P", 1)
 
 
 # def BEMPP_f(f):
@@ -109,12 +109,12 @@ class NumpyBEMPPrhsOperator(NumpyMatrixBasedOperator):
         def u_inc_callable(x, n, domain_index, result):
             r = np.sqrt((s_x - x[0])**2 + (s_y - x[1])**2 + (s_z - x[2])**2)
             result[0] = 1j * rho_0 * omega * Q * np.exp(1j * k * r) / (4 * np.pi * r)
-        u_inc = bempp.api.GridFunction(space, fun=u_inc_callable)
-        return -u_inc.projections()
+        u_inc = -bempp.api.GridFunction(self.space, fun=u_inc_callable).projections().reshape(-1, 1)
+        return u_inc
 
 
-A = NumpyBEMPPBoundaryOperator(space)
-f = NumpyBEMPPrhsOperator(space)
+A = NumpyBEMPPBoundaryOperator(function_space)
+f = NumpyBEMPPrhsOperator(function_space)
 
 from pymor.models.basic import StationaryModel
-fom = StationaryModel(A, f)
+fom = StationaryModel(A, f, name="BEM")
