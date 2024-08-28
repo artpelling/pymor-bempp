@@ -75,7 +75,8 @@ space =  bempp.api.function_space(grid, "P", 1)
 from pymor.operators.numpy import NumpyMatrixBasedOperator, NumpyMatrixOperator
 from pymor.vectorarrays.numpy import NumpyVectorSpace
 
-class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
+
+class NumpyBEMPPBoundaryOperator(NumpyMatrixBasedOperator):
     def __init__(self, space, source_id=None, range_id=None, solver_options=None, name=None):
         self.__auto_init(locals())
         dim = space.global_dof_count
@@ -83,7 +84,6 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         self.range = NumpyVectorSpace(dim, range_id)
         self.parameters_own = {'w': 1}
 
-class NumpyBEMPPBoundaryOperator(NumpyBEMPPOperator):
     def _assemble(self, mu=None):
         f = mu['w']
         k = wavenumber(f)
@@ -93,6 +93,13 @@ class NumpyBEMPPBoundaryOperator(NumpyBEMPPOperator):
         return double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A
 
 class NumpyBEMPPrhsOperator(NumpyBEMPPOperator):
+    def __init__(self, space, source_id=None, range_id=None, solver_options=None, name=None):
+        self.__auto_init(locals())
+        dim = space.global_dof_count
+        self.source = NumpyVectorSpace(1, source_id)
+        self.range = NumpyVectorSpace(dim, range_id)
+        self.parameters_own = {'w': 1}
+
     def _assemble(self, mu=None):
         f = np.squeeze(mu['w'])
         k = wavenumber(f)
