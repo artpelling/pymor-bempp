@@ -94,7 +94,7 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         self.parameters_own = {'w': 1}
 
     def _assemble(self, mu=None):
-        self.bempp_op(mu).weak_form().A
+        self.bempp_op(mu['w']).weak_form().A
 
 
 A = NumpyBEMPPOperator(BEMPP_A, 454)
