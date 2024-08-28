@@ -83,6 +83,7 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         self.range = NumpyVectorSpace(dim, range_id)
         self.parameters_own = {'w': 1}
 
+class NumpyBEMPPBoundaryOperator(NumpyBEMPPOperator):
     def _assemble(self, mu=None):
         f = mu['w']
         k = wavenumber(f)
@@ -92,9 +93,12 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         double_layer = helmholtz.double_layer(self.space, self.space, self.space, k, device_interface='opencl')
         return double_layer.weak_form().A - 0.5 * identity.weak_form().A + 1j * k * beta * single_layer.weak_form().A
 
+class NumpyBEMPPrhsOperator(NumpyBEMPPOperator):
+    def _assemble(self, mu=None):
 
-A = NumpyBEMPPOperator(space)
-print(A.assemble(A.parameters.parse(20)))
+
+A = NumpyBEMPPBoundaryOperator(space)
+f =
 
 from pymor.models.basic import StationaryModel
 model = StationaryModel(A, f)
