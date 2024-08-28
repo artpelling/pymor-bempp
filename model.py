@@ -91,13 +91,13 @@ class NumpyBEMPPOperator(NumpyMatrixBasedOperator):
         self.__auto_init(locals())
         self.source = NumpyVectorSpace(dim, source_id)
         self.range = NumpyVectorSpace(dim, range_id)
+        self.parameters_own = {'w': 1}
 
     def _assemble(self, mu=None):
         self.bempp_op(mu).weak_form().A
 
 
 A = NumpyBEMPPOperator(BEMPP_A, 454)
-
 
 from pymor.models.basic import StationaryModel
 model = StationaryModel(A, f)
