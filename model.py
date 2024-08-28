@@ -58,16 +58,16 @@ grid = bempp.api.import_grid('cuboid.msh')
 space =  bempp.api.function_space(grid, "P", 1)
 
 
-def BEMPP_f(f):
-    k = wavenumber(f)
-    omega = ang_freq(f)
+# def BEMPP_f(f):
+#     k = wavenumber(f)
+#     omega = ang_freq(f)
 
-    @bempp.api.complex_callable
-    def u_inc_callable(x, n, domain_index, result):
-        r = np.sqrt((s_x - x[0])**2 + (s_y - x[1])**2 + (s_z - x[2])**2)
-        result[0] = 1j * rho_0 * omega * Q * np.exp(1j * k * r) / (4 * np.pi * r)
+#     @bempp.api.complex_callable
+#     def u_inc_callable(x, n, domain_index, result):
+#         r = np.sqrt((s_x - x[0])**2 + (s_y - x[1])**2 + (s_z - x[2])**2)
+#         result[0] = 1j * rho_0 * omega * Q * np.exp(1j * k * r) / (4 * np.pi * r)
 
-    return bempp.api.GridFunction(space, fun=u_inc_callable).evaluate_on_vertices()
+#     return bempp.api.GridFunction(space, fun=u_inc_callable).evaluate_on_vertices()
 
 
 
@@ -87,7 +87,6 @@ class NumpyBEMPPBoundaryOperator(NumpyBEMPPOperator):
     def _assemble(self, mu=None):
         f = mu['w']
         k = wavenumber(f)
-        omega = ang_freq(f)
         identity = sparse.identity(self.space, self.space, self.space)
         single_layer = helmholtz.single_layer(self.space, self.space, self.space, k, device_interface='opencl')
         double_layer = helmholtz.double_layer(self.space, self.space, self.space, k, device_interface='opencl')
@@ -95,10 +94,20 @@ class NumpyBEMPPBoundaryOperator(NumpyBEMPPOperator):
 
 class NumpyBEMPPrhsOperator(NumpyBEMPPOperator):
     def _assemble(self, mu=None):
+        f = np.squeeze(mu['w'])
+        k = wavenumber(f)
+        omega = ang_freq(f)
+        @bempp.api.complex_callable
+        def u_inc_callable(x, n, domain_index, result):
+            r = np.sqrt((s_x - x[0])**2 + (s_y - x[1])**2 + (s_z - x[2])**2)
+            result[0] = 1j * rho_0 * omega * Q * np.exp(1j * k * r) / (4 * np.pi * r)
+        u_inc = bempp.api.GridFunction(space, fun=u_inc_callable)
+        return -u_inc.projections()
+
 
 
 A = NumpyBEMPPBoundaryOperator(space)
-f =
+f = NumpyBEMPPrhsOperator(space)
 
-from pymor.models.basic import StationaryModel
-model = StationaryModel(A, f)
+# from pymor.models.basic import StationaryModel
+# model = StationaryModel(A, f)
