@@ -14,8 +14,8 @@ from bindings import BemppBoundaryOperator, BemppRhsOperator
 
 # PARAMETERS
 #--------------------
-k_range = 2*np.pi*np.array((10, 8000))/343
-num_snaps = 25
+k_range = 2*np.pi*np.array((10, 6000))/343
+num_snaps = 32
 pod_rtol = 1e-7
 num_validate = 50
 #--------------------
@@ -75,8 +75,9 @@ if __name__ == '__main__':
 
     ax = axes[1]
     ax.semilogx(k_validate, 20*np.log10(rel_error))
-    ax.set_title('Relative error of ROM solutions')
+    ax.set_title('Rel. error of ROM solutions in dB')
     ax.set_xlim(k_range)
-    ax.set_ylim((-80, 0))
+    ax.set_ylim((-60, 0))
+    ax.yaxis.tick_right()
     plt.savefig('plots/rom_quality.png')
     plt.show()

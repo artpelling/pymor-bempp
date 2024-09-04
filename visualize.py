@@ -12,7 +12,7 @@ from sphere import A, fom, rom, reductor, space
     
 # PARAMETERS
 #--------------------
-k = 1
+k = 10
 
 
 # COMPUTE SOLUTIONS
