@@ -6,12 +6,9 @@ from bempp.api.linalg import gmres
 import numpy as np
 from matplotlib import pyplot as plt
 from numpy.core.numeric import identity
-import warnings
-warnings.filterwarnings('ignore')
-import time
+
 
 # Room geometry is imported from mesh
-import bempp.core
 bempp.core.opencl_kernels.set_default_cpu_device(1, 0)
 
 
