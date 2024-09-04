@@ -2,6 +2,10 @@
 
 A simple demo showcasing the potential of model order reduction for BEM scattering problems combining [pyMOR](https://github.com/pymor/pymor) and [bempp-cl](https://github.com/bempp/bempp-cl) for the [sphere scattering tutorial](https://nbviewer.org/github/bempp/bempp-cl/blob/main/notebooks/helmholtz/helmholtz_combined_exterior.ipynb).
 
+## Method
+
+We follow a simple POD approach to reduced basis generation, see [pyMOR Tutorial: Projecting a Model](https://docs.pymor.org/latest/tutorial_projection.html#).
+
 ## Usage
 
 Install the requirements listed in [requirements.txt](requirements.txt) and run either
