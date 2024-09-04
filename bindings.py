@@ -44,3 +44,46 @@ class BemppRhsOperator(NumpyMatrixBasedOperator):
             result[0] = 1j*k*np.exp(1j*k*x[0])*(n[0] - 1)
         return GridFunction(self.space, fun=callable).projections().reshape(-1, 1)
 
+
+from pymor.operators.interface import Operator
+from pymor.core.pickle import unpicklable
+from pymor.vectorarrays.list import CopyOnWriteVector, ComplexifiedListVectorSpace
+
+@unpicklable
+class BemppVector(CopyOnWriteVector):
+    def __init__(self, impl):
+        self.impl = impl
+
+    def to_numpy(self, ensure_copy=False):
+        return self.impl.projections()
+
+    def __scal__(self, alpha):
+        return BemppVector(alpha * self.impl)
+
+    def norm(self):
+        return self.impl.l2_norm()
+
+    def norm2(self):
+        return self.impl.l2_norm()**2
+
+    def __add__(self, other):
+        return BemppVector(self.impl + other.impl)
+
+    def __sub__(self, other):
+        return BemppVector(self.impl - other.impl)
+
+    def __neg__(self):
+        return BemppVector(self.impl.__neg__())
+
+class BemppVectorSpace(ComplexifiedListVectorSpace):
+    pass
+
+class BemppOperator(Operator):
+    """Wraps a BEMpp operator as an |Operator|"""
+
+    def __init__(self, impl):
+        self.__auto_init(locals())
+
+    def apply(self, U, mu=None):
+        assert U in self.source
+        return self.range.make_array(self * U.impl)
