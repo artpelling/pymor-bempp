@@ -14,8 +14,8 @@ from bindings import BemppBoundaryOperator, BemppRhsOperator
 
 # PARAMETERS
 #--------------------
-k_range = 2*np.pi*np.array((10, 1000))/343
-num_snaps = 30
+k_range = 2*np.pi*np.array((10, 8000))/343
+num_snaps = 25
 pod_rtol = 1e-7
 num_validate = 50
 #--------------------
@@ -63,18 +63,20 @@ if __name__ == '__main__':
     rel_error = (U - U_r).norm2() / U.norm2()
     
     import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(dpi=300, ncols=2)
+    fig, axes = plt.subplots(figsize=(6,3), dpi=300, ncols=2)
     _, sv = pod(snaps, modes=num_snaps, rtol=0, method='qr_svd')
     sv /= np.max(sv)
     ax = axes[0]
-    ax.semilogy(np.arange(num_snaps)+1, sv)
-    ax.vlines(rom.order, np.min(sv), np.max(sv), color='r', linestyle=':')
+    ax.semilogy(np.arange(num_snaps)+1, sv, label=r'$\sigma_i$')
+    ax.vlines(rom.order, np.min(sv), np.max(sv), color='r', linestyle=':', label='r')
     ax.set_title('POD Spectrum')
     ax.set_xlim((1, num_snaps))
+    ax.legend()
 
     ax = axes[1]
     ax.semilogx(k_validate, 20*np.log10(rel_error))
-    ax.set_title('Relative Error')
+    ax.set_title('Relative error of ROM solutions')
     ax.set_xlim(k_range)
+    ax.set_ylim((-80, 0))
     plt.savefig('plots/rom_quality.png')
     plt.show()
