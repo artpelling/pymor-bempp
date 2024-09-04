@@ -17,3 +17,5 @@ python visualize.py
 ```
 
 to compare the solutions of the full and reduced order models.
+
+![Plot1](./plots/rom_quality.png)
