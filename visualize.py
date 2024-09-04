@@ -7,14 +7,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from bempp.api import GridFunction
 from bempp.api.operators.potential.helmholtz import single_layer
 
-from pymor.algorithms.pod import pod
-
-from sphere import A, fom, rom, snaps, num_snaps, reductor, space
+from sphere import A, fom, rom, reductor, space
 
     
 # PARAMETERS
 #--------------------
-k = 15
+k = 1
 
 
 # COMPUTE SOLUTIONS
@@ -52,18 +50,18 @@ if __name__ == '__main__':
     rom_solution = error.copy()
     rom_solution[idx] = np.real(np.exp(1j*k*points[0, idx]) - slp_pot.evaluate(rom_sol)).flat
     abs_error = error.copy()
-    abs_error[idx] = np.abs(fom_solution[idx] - rom_solution[idx])
+    abs_error[idx] = fom_solution[idx] - rom_solution[idx]
     rel_error = error.copy()
-    rel_error[idx] = abs_error[idx] / np.abs(fom_solution[idx])
+    rel_error[idx] = np.abs(abs_error[idx] / fom_solution[idx])
 
     abs_norm = spla.norm(abs_error[idx])
     rel_norm = abs_norm / spla.norm(fom_solution[idx])
     # make plot
-    fig, axes = plt.subplots(figsize=(8, 8), dpi=300, ncols=2, nrows=2)
+    fig, axes = plt.subplots(figsize=(6, 6), dpi=300, ncols=2, nrows=2)
     for vec, ax, label in zip(
-            (fom_solution, rom_solution, 20*np.log10(abs_error), 20*np.log10(rel_error)),
+            (fom_solution, rom_solution, abs_error, 20*np.log10(rel_error)),
             axes.ravel(),
-            ('FOM', 'ROM', f'Absolute error: {20*np.log10(abs_norm):2f} dB', f'Relative error: {20*np.log10(rel_norm):2f} dB')
+            ('FOM', 'ROM', f'Absolute error: {abs_norm:.2f}', f'Relative error: {20*np.log10(rel_norm):.2f} dB')
     ):
         im = ax.imshow(vec.reshape((Nx, Ny)).T, extent=[-3, 3, -3, 3])
         ax.set_title(label)
@@ -73,6 +71,6 @@ if __name__ == '__main__':
         cax = divider.append_axes('right', size='5%', pad=0.05)
         fig.colorbar(im, cax=cax, orientation='vertical')
 
-    fig.suptitle(f"Unit sphere scattering, k={k}")
-    plt.savefig(f'sphere_{k}.png')
+    fig.suptitle(f'Unit sphere scattering, k={k}')
+    plt.savefig(f'plots/sphere_{k}.png')
     plt.show()

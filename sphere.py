@@ -14,7 +14,7 @@ from bindings import BemppBoundaryOperator, BemppRhsOperator
 
 # PARAMETERS
 #--------------------
-k_range = 2*np.pi*np.array((20, 20000))/343
+k_range = 2*np.pi*np.array((10, 1000))/343
 num_snaps = 30
 pod_rtol = 1e-7
 num_validate = 50
@@ -33,7 +33,7 @@ fom = StationaryModel(A, f, name='BEM_full')
 # MODEL ORDER REDUCTION
 #--------------------
 # collect snapshots
-k_snaps = np.geomspace(*k_range, num_snaps)
+k_snaps = np.linspace(*k_range, num_snaps)
 snaps = fom.solution_space.empty()
 for mu in [fom.parameters.parse(k) for k in k_snaps]:
     snaps.append(fom.solve(mu))
@@ -74,6 +74,7 @@ if __name__ == '__main__':
 
     ax = axes[1]
     ax.semilogx(k_validate, 20*np.log10(rel_error))
+    ax.set_title('Relative Error')
     ax.set_xlim(k_range)
-    plt.savefig('rom_quality.png')
+    plt.savefig('plots/rom_quality.png')
     plt.show()
